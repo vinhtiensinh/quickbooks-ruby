@@ -12,7 +12,7 @@ module Quickbooks
         self.query_in_batches(object_query, options) do |batch|
           collection << batch.entries
         end
-        collection.flatten!
+        collection.flatten
       end
 
       def query_in_batches(object_query=nil, options={})
@@ -23,6 +23,10 @@ module Quickbooks
           results = query(object_query, page: page, per_page: per_page)
           yield results if results.count > 0
         end until results.count < per_page
+      end
+
+      def exists?(field, selector, options={})
+        find_by(field, selector, options).count > 0
       end
 
       def find_by(field, selector, options={})

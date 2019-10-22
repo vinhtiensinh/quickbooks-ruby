@@ -1,3 +1,96 @@
+## 1.0.0 (2019-10-14)
+
+* OAuth2. With support for OAuth1 in mixed-mode.
+
+Thank you to everyone who has contributed!
+
+## 0.6.7 (2019-07-24)
+
+* Preferences sales_forms_prefs CustomField support
+* Fix test failures due to logging call on Stubbed object
+* Add CustomField#value accessor suitable for all CustomField types
+* Add support for custom fields config in Preferences
+* Change deprecated use of BigDecimal.new
+
+Thank you @armstrjare
+
+
+## 0.6.6 (2019-01-30)
+
+* Implemented minorversion support for Customer (at 33)
+* Added PrefVendorRef field support to Item
+
+## 0.6.5 (2019-01-07)
+
+* adding LinkedTxn collection into Quickbooks::Model::Bill per v3 API spec (#452), thank you @thaiden
+* Relax oauth gem dependency (#449) allow anything >= 0.4.5 but < 0.5, thank you @jnraine
+* Updates to the CompanyCurrency model, thank you @chrisgreen1993
+* Add a base class to easily rescue all QBO exceptions (#445) Having all the errors inherit from a single class means you can just rescue `Quickbooks::Error` and handle all of this gem's exceptions. Thank you @drewish
+
+## 0.6.4 (2018-10-29)
+
+Yanked 0.6.3; built incorrectly. 0.6.4 has no functional differences between 0.6.3
+
+## 0.6.3 (2018-10-21)
+
+Added minorversion=21 support to Preferences
+
+## 0.6.2 (2018-05-16)
+
+Fixed bug with generating an invalid URL when both requestid and minorversions are specified. Addresses #430
+
+## 0.6.1 (2018-01-31)
+
+Added support for Description-only line item details on Invoices
+
+Usage:
+
+```
+line_item = Quickbooks::Model::InvoiceLineItem.new
+line_item.description = "Plush Baby Doll"
+line_item.description_only!
+invoice.line_items << line_item
+```
+
+## 0.6.0 (2018-01-25)
+
+* Updated dependent gem ROXML to 4.0.0 to address Ruby 2.4.x issues:
+
+roxml-3.3.1/lib/roxml/definition.rb:156: warning: constant ::Fixnum is deprecated
+
+See https://github.com/ruckus/quickbooks-ruby/pull/410
+
+* Add EffectiveTaxRate model (#408). Thank you @rudylee
+
+## 0.5.1 (2017-07-17)
+
+* Added purchase order to the list of batch request/response entities. Thank you @BitPerformanceLabs
+* Added vendor to list of supported batch request entities. Thank you @BitPerformanceLabs
+
+## 0.5.0 (2017-07-17)
+
+* Added support for Line Extras and Name Values to Payment model. This is needed to read payments against invoices.
+
+## 0.4.9 (2017-05-14)
+
+* Adding journal enteries and spec to batch request and response - pull request #380 from nathan-mots/add-journal-entries-to-bulk - thank you!
+* Add email send capability to SalesReceipt - pull request #376 from vanboom/sr_send - thank you!
+* Improve consistency of email address setter method - pull request #377 from vanboom/375 - thank you!
+
+## 0.4.8 (2017-03-14)
+
+* Fixes from @cohendvir to resolve a regression in 0.4.7
+
+## 0.4.7 (2017-03-07)
+
+* add entity as reference - pull request #365 from @cohendvir - thank you!
+* Add more exceptions for HTTP errors - pull request #364 from @drewish - thank you!
+* Enhance the token renewal example - pull request #356 from @drewish - thank you!
+* Fix bundler versioning -  pull request #357 from @drewish - thank you!
+* Service.all returns nil if no elements exist, should return [] - pull request #358 from @vanboom - thank you!
+
+* Lots of smaller fixes and cleanup from @drewish - thank you!
+
 ## 0.4.6 (2016-12-12)
 
 * Add HomeBalance field to Invoice - thank you @mhssmnn

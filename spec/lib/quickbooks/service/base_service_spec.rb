@@ -9,7 +9,7 @@ describe Quickbooks::Service::BaseService do
 
   describe "#url_for_query" do
     shared_examples "encoding the query correctly" do |domain|
-      let(:correct_url) { "https://#{domain}/v3/company/1234/query?query=SELECT+*+FROM+Customer+where+Name+%3D+%27John%27" }
+      let(:correct_url) { "https://#{domain}/v3/company/1234/query?query=SELECT+%2A+FROM+Customer+where+Name+%3D+%27John%27" }
 
       it "correctly encodes the query" do
         subject.realm_id = 1234
@@ -43,7 +43,7 @@ describe Quickbooks::Service::BaseService do
 
     it "correctly initializes with an access_token and realm" do
       @service.company_id.should == "9991111222"
-      @service.oauth.is_a?(OAuth::AccessToken).should == true
+      @service.oauth.should_not be_nil
     end
   end
 
@@ -90,6 +90,45 @@ describe Quickbooks::Service::BaseService do
       expect { @service.send(:check_response, response) }.to raise_error(Quickbooks::ThrottleExceeded)
     end
 
+    it "should raise NotFound on HTTP 404" do
+      html = <<-HTML
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html>
+  <head>
+    <title>404 Not Found</title>
+  </head>
+  <body>
+    <h1>Not Found</h1>
+    <p>The requested URL /v3/company/1413511890/query was not found on this server.</p>
+  </body>
+</html>
+      HTML
+
+      response = Struct.new(:code, :plain_body).new(404, html)
+      expect { @service.send(:check_response, response) }.to raise_error(Quickbooks::NotFound)
+    end
+
+    it "should raise NotFound on HTTP 404" do
+      html = <<-HTML
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html>
+  <head>
+    <title>413 Request Entity Too Large</title>
+  </head>
+  <body>
+    <h1>Request Entity Too Large</h1>
+    The requested resource<br />
+    /v3/company/123145730715194/batch<br />
+    does not allow request data with POST requests, or the amount of data provided in
+    the request exceeds the capacity limit.
+  </body>
+</html>
+      HTML
+
+      response = Struct.new(:code, :plain_body).new(413, html)
+      expect { @service.send(:check_response, response) }.to raise_error(Quickbooks::RequestTooLarge)
+    end
+
     it "should raise TooManyRequests on HTTP 429 with appropriate message" do
       xml = fixture('too_many_requests_error.xml')
       message = Nokogiri::XML::Document.parse(xml) do |config|
@@ -100,36 +139,17 @@ describe Quickbooks::Service::BaseService do
       expect { @service.send(:check_response, response) }.to raise_error(Quickbooks::TooManyRequests, message)
     end
 
-    it "should raise ServiceUnavailable on HTTP 503 and 504" do
+    it "should raise ServiceUnavailable on HTTP 502, 503 and 504" do
       xml = fixture('generic_error.xml')
+
+      response = Struct.new(:code, :plain_body).new(502, xml)
+      expect { @service.send(:check_response, response) }.to raise_error(Quickbooks::ServiceUnavailable)
 
       response = Struct.new(:code, :plain_body).new(503, xml)
       expect { @service.send(:check_response, response) }.to raise_error(Quickbooks::ServiceUnavailable)
 
       response = Struct.new(:code, :plain_body).new(504, xml)
       expect { @service.send(:check_response, response) }.to raise_error(Quickbooks::ServiceUnavailable)
-    end
-
-    it "handles error XML with a missing namespace" do
-      xml = <<-XML
-<?xml version=\"1.0\"?>
-<IntuitResponse time="2013-11-15T13:16:49.528-08:00">
-  <Fault type="SystemFault">
-    <Error code="10000">
-      <Message>An application error has occurred while processing your request</Message>
-      <Detail>System Failure Error: Could not find resource for relative : some more info here</Detail>
-    </Error>
-  </Fault>
-</IntuitResponse>
-      XML
-      response = Struct.new(:code, :plain_body).new(200, xml)
-
-      begin
-        @service.send :check_response, response
-        fail "Exception expected"
-      rescue Quickbooks::IntuitRequestException => exception
-        expect(exception.detail).to eq(xml)
-      end
     end
   end
 
@@ -145,7 +165,7 @@ describe Quickbooks::Service::BaseService do
 
     before do
       construct_service :vendor
-      stub_request(:get, @service.url_for_query, ["200", "OK"], fixture("vendors.xml"))
+      stub_http_request(:get, @service.url_for_query, ["200", "OK"], fixture("vendors.xml"))
     end
 
     it "should not log by default" do

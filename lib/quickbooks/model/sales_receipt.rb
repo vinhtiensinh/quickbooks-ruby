@@ -20,6 +20,7 @@ module Quickbooks
       xml_accessor :department_ref, :from => 'DepartmentRef', :as => BaseReference
       xml_accessor :bill_email, :from => 'BillEmail', :as => EmailAddress
       xml_accessor :bill_address, :from => 'BillAddr', :as => PhysicalAddress
+      xml_accessor :delivery_info, :from => 'DeliveryInfo', :as => DeliveryInfo
       xml_accessor :ship_address, :from => 'ShipAddr', :as => PhysicalAddress
       xml_accessor :po_number, :from => 'PONumber'
       xml_accessor :ship_method_ref, :from => 'ShipMethodRef', :as => BaseReference
@@ -54,9 +55,10 @@ module Quickbooks
       validate :line_item_size
       validate :document_numbering
 
-      def email=(email)
-        self.bill_email = EmailAddress.new(email)
+      def billing_email_address=(email_address_string)
+        self.bill_email = EmailAddress.new(email_address_string)
       end
+      alias_method :email=, :billing_email_address=  # backward backward compatibility to v0.4.6
 
     end
   end
