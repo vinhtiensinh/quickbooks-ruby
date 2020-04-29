@@ -23,6 +23,11 @@ module Quickbooks
       def vendor_credit_id=(id)
         update_linked_transactions([id], 'VendorCredit')
       end
+
+      def deposit_id=(id)
+        update_linked_transactions([id], 'Deposit')
+      end
+
       alias_method :bill_ids=, :bill_id=
       alias_method :vendor_credit_ids=, :vendor_credit_id=
 
