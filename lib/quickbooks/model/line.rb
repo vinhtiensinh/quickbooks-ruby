@@ -40,6 +40,11 @@ module Quickbooks
       def credit_memo_id=(id)
         update_linked_transactions([id], 'CreditMemo')
       end
+
+      def purchase_id=(id)
+        update_linked_transactions([id], 'Expense')
+      end
+
       alias_method :credit_memo_ids=, :credit_memo_id=
 
       def sales_item!
