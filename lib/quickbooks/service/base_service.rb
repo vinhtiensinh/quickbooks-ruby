@@ -9,6 +9,8 @@ module Quickbooks
       attr_reader :base_uri
       attr_reader :last_response_body
       attr_reader :last_response_xml
+      attr_reader :last_response_intuit_tid
+      
 
       XML_NS = %{xmlns="http://schema.intuit.com/finance/v3"}
       HTTP_CONTENT_TYPE = 'application/xml'
@@ -360,6 +362,12 @@ module Quickbooks
           log(log_xml(response.plain_body))
           parse_xml(response.plain_body)
         end
+
+        @last_response_intuit_tid = if response.respond_to?(:headers) && response.headers
+          response.headers['intuit_tid']
+        else
+          nil
+        end 
       end
 
       def log_request_body(body)
