@@ -6,6 +6,7 @@ module Quickbooks
       XML_COLLECTION_NODE = "BillPayment"
       XML_NODE = "BillPayment"
       REST_RESOURCE = 'billpayment'
+      MINORVERSION = 47
 
       xml_accessor :id, :from => 'Id'
       xml_accessor :sync_token, :from => 'SyncToken', :as => Integer
